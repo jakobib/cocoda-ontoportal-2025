@@ -1,0 +1,176 @@
+---
+title: Integration of mapping tool Cocoda with OntoPortal
+subtitle: OntoPortal Workshop 2025
+institute: Verbundzentrale des GBV (VZG)
+date: 2025-09-29
+author:
+ - Jakob Voß
+authors:
+ - name: Jakob Voß
+---
+
+## Cocoda mapping tool
+
+- Web application to **create and manage mappings**
+- Actively developed since 2015 at VZG
+- Public instances without limitations
+- There are screencasts and a manual
+- *Just try it out!*
+
+<https://coli-conc.gbv.de/cocoda/>
+
+## Cocoda mapping tool
+
+![](cocoda-screenshot.png){width=100%}
+
+## Mappings
+
+- <https://d-nb.info/gnd/4062527-8> *Venus (planet)*
+- = <http://www.wikidata.org/entity/Q313> *Venus*
+- $\approx$ <http://dewey.info/class/523.42/e23/> *Venus*
+- < <http://uri.gbv.de/terminology/bk/39.53> *Planets*
+
+## More then a triple
+
+- Source concept(s)
+- Mapping type
+  - `skos:exactMatch`, `skos:broadMatch`, `owl:sameAs`...
+- Target concept(s)
+- Stable identifier
+- Metadata (creator, date, membership...)
+- Annotations/reviews
+
+## Data model: JSKOS Concept mapping
+
+\small
+
+~~~json
+{
+  "from": { "memberSet": [ {
+      "uri": "https://ikmk.smb.museum/ndp/material/1" 
+  } ] },
+  "to": { "memberSet": [ {
+      "uri": "https://d-nb.info/gnd/4133759-1",
+  } ] },
+  "type": [ "http://www.w3.org/2004/02/skos/core#exactMatch" ],
+  "creator": [ {
+    "uri": "https://orcid.org/0000-0002-7613-4123",
+    "prefLabel": { "en": "Jakob Voß" }
+  } ],  
+  "created": "2025-09-26T11:16:07.893Z",
+  "annotations": [ ],
+  "uri": "https://coli-conc.gbv.de/api/mappings/4f0b1c22-b25b-4df8-8216-908bff9b3219"
+}  
+~~~
+
+## JSKOS data format
+
+
+::: columns
+:::: column
+\small
+- Unified data format for **semantic artefacts**
+- SKOS in JSON-LD with **several extensions**:
+- Mappings
+- Concordances
+- Annotations
+- Qualified statements
+- ...
+::::
+:::: column
+\small
+~~~json
+{ "uri": "http://example.org/animals/",
+  "notation": ["A"],
+  "prefLabel": {
+    "en": "animals",
+    "de": "Tiere"
+  },
+  "broader": [ {
+    "prefLabel": {
+      "en": "creatures" }
+  } ] }
+~~~
+::::
+:::
+
+<https://gbv.github.io/jskos/>
+
+## JSKOS API
+
+- Access to semantic artefacts and related JSKOS entities
+- "Get mappings from X to Y of type T annotated by A..."
+- At least four implementations exist (three of them by VZG)
+- Reference implementation: jskos-server (NodeJS)
+
+<https://github.com/gbv/jskos-server#api>
+
+# Technical Architecture & Integration
+
+## Technology of Cocoda
+
+- Client-Side Web application with Vue framework
+- Several NodeJS libraries (cocoda-sdk, login-client...)
+- Service-Oriented Architecture
+- Common data model JSKOS
+
+## Components
+
+![](cocoda-system-diagram-1.svg){width=80%}
+
+## Components
+
+![](cocoda-system-diagram.svg){width=100%}
+
+# Integration with OntoPortal
+
+## Integration of Mappings into OntoPortal
+
+- Just query mapping sources via JSKOS API
+- Write access requires access-tokens: WIP
+- OntoPortal or its auth backend could be integrated into login-server
+
+## Ontoportal API
+
+- Looks good but not fully analyzed yet
+- Some inspiring features such as subtree search
+- Possible show-stopper: API Key
+- No mappings API
+
+<https://demodata.ontoportal.org/documentation>
+
+## Workarounds
+
+- Server wrapper (TS4NFDI API Gateway)
+- Remove API Key for read-only methods
+- Extend OntoPortal to use temporary tokens instead of API key, also for fine-grained access
+- Use MOD API or JSKOS API
+
+## MOD API
+
+::: columns
+:::: column
+\small
+- Yet another API?
+- Limitations, such as 
+  local ids instead of URIs
+- One artefact, multiple skos:ConceptScheme
+::::
+:::: column
+![](api-types.png)
+::::
+:::
+
+<https://fair-impact.github.io/MOD-API/>
+
+# Summary
+
+- Mature Web application to create and manage mappings
+- Client side, components connected via Web APIs
+- Sigle-Sign-On (ORCID, GitHub, Wikimedia...)
+- Mapping databases using JSKOS Server
+- Just use JSKOS and our API for mappings
+- Unified Access to terminologies
+  a) [cocoda-sdk](https://github.com/gbv/cocoda-sdk)
+  b) MOD-API via TS4NFDI API Gateway
+
